@@ -15,12 +15,12 @@ public class BunteAppApplication {
 
 	@GetMapping("/hello")
 	public String hello() {
-		return "Hello World";
+		return "Hello World. This is a simple Spring Boot application.The name of this application is Bunte App.";
 	}
 
 	@GetMapping("/api/stuttgart")
 	public String stuttgart() {
-		return "This is Stuttgart city";
+		return "This is Stuttgart city. It is the capital of the state of Baden-Württemberg in souther Germany.";
 	}
 
 }

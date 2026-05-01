@@ -29,8 +29,13 @@ services:
     build: ./backend
     ports:
       - "8081:8081"
+    volumes:
+      - ./backend:/app
+      - /app/target
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/myappdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/myrealm
     depends_on:
       - postgres

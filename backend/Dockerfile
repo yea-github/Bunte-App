@@ -1,10 +1,18 @@
-FROM eclipse-temurin:17-jdk-alpine AS build
-WORKDIR /app
-COPY . .
-RUN ./mvnw clean package -DskipTests
+FROM maven:3.9-eclipse-temurin-17
 
-FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+
+# Copy only pom.xml first (for dependency caching)
+COPY pom.xml .
+
+# Download dependencies (faster rebuilds later)
+RUN mvn dependency:go-offline
+
+# Copy source code
+COPY src ./src
+
+# Expose your app port
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Run Spring Boot in dev mode
+CMD ["mvn", "spring-boot:run"]
