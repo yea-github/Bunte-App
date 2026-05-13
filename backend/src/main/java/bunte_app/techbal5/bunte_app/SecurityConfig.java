@@ -13,7 +13,8 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-        "/hello",
+                    "/hello",
+                    "/Hello-Codex",
                     "/api/stuttgart"
                 ).permitAll()
                 .anyRequest().authenticated()

@@ -18,6 +18,12 @@ public class BunteAppApplication {
 		return "Hello World 123. This is a simple Spring Boot application. It will be used to demonstrate DevOps practices.";
 	}
 
+
+	@GetMapping("/Hello-Codex")
+	public String helloCodex() {
+		return "Hello. I am from Codex Assistant";
+	}
+
 	@GetMapping("/api/stuttgart")
 	public String stuttgart() {
 		return "This is Stuttgart city. It is the capital of the state of Baden-Württemberg in souther Germany.";
