@@ -15,7 +15,7 @@ public class BunteAppApplication {
 
 	@GetMapping("/hello")
 	public String hello() {
-		return "Hello World. This is a simple Spring Boot application.The name of this application is Bunte App.";
+		return "Hello World 123. This is a simple Spring Boot application. It will be used to demonstrate DevOps practices.";
 	}
 
 	@GetMapping("/api/stuttgart")
