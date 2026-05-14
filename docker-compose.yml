@@ -19,7 +19,7 @@ services:
     image: quay.io/keycloak/keycloak:latest
     command: start-dev --import-realm
     volumes:
-      - ./realm-export.json:/opt/keycloak/data/import/realm.json:ro
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm.json:ro
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/myappdb
@@ -44,8 +44,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/myappdb
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/myrealm
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/myrealm/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/Bunte-App
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/Bunte-App/protocol/openid-connect/certs
+      KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/Bunte-App/protocol/openid-connect/token
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-Bunte-App}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
     depends_on:
       postgres:
         condition: service_healthy

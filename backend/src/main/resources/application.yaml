@@ -16,9 +16,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/myrealm
-          jwk-set-uri: http://keycloak:8080/realms/myrealm/protocol/openid-connect/certs
+          issuer-uri: http://keycloak:8080/realms/Bunte-App
+          jwk-set-uri: http://keycloak:8080/realms/Bunte-App/protocol/openid-connect/certs
 
 server:
-      port: 8081
-  
+  port: 8081
+
+bunte-app:
+  keycloak:
+    token-uri: ${KEYCLOAK_TOKEN_URI:http://keycloak:8080/realms/Bunte-App/protocol/openid-connect/token}
+    client-id: ${KEYCLOAK_CLIENT_ID:Bunte-App}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:}

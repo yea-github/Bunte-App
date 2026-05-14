@@ -1,11 +1,15 @@
 package bunte_app.techbal5.bunte_app;
 
+import bunte_app.techbal5.bunte_app.auth.KeycloakProperties;
+
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableConfigurationProperties(KeycloakProperties.class)
 public class SecurityConfig {
 
     @Bean
@@ -15,7 +19,8 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/hello",
                     "/Hello-Codex",
-                    "/api/stuttgart"
+                    "/api/stuttgart",
+                    "/login"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
