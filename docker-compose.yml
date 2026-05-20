@@ -25,6 +25,8 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres:5432/myappdb
       KC_DB_USERNAME: user
       KC_DB_PASSWORD: password
+      KC_HOSTNAME: http://localhost:8080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
@@ -44,7 +46,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/myappdb
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/Bunte-App
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8080/realms/Bunte-App
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/Bunte-App/protocol/openid-connect/certs
       KEYCLOAK_TOKEN_URI: http://keycloak:8080/realms/Bunte-App/protocol/openid-connect/token
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-Bunte-App}
