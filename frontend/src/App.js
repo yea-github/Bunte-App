@@ -1,34 +1,92 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8081';
+const TOKEN_STORAGE_KEY = 'bunte_access_token';
+
+function decodeJwtPayload(token) {
+  try {
+    const payload = token.split('.')[1];
+
+    if (!payload) {
+      return null;
+    }
+
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const paddedPayload = normalizedPayload.padEnd(
+      normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
+      '='
+    );
+
+    return JSON.parse(atob(paddedPayload));
+  } catch (decodeError) {
+    return null;
+  }
+}
+
+function getUserProfile(token) {
+  const claims = decodeJwtPayload(token) || {};
+
+  return {
+    firstName: claims.given_name || claims.first_name || '',
+    lastName: claims.family_name || claims.last_name || '',
+    username: claims.preferred_username || claims.username || claims.sub || '',
+  };
+}
+
+function navigateTo(path) {
+  window.history.pushState({}, '', path);
+  const navigationEvent = typeof PopStateEvent === 'function' ? new PopStateEvent('popstate') : new Event('popstate');
+  window.dispatchEvent(navigationEvent);
+}
 
 function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [tokenResponse, setTokenResponse] = useState(() => {
-    const savedToken = localStorage.getItem('bunte_access_token');
+    const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
     return savedToken ? { access_token: savedToken } : null;
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [copyStatus, setCopyStatus] = useState('');
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   const bearerToken = tokenResponse?.access_token || '';
-  const tokenPreview = useMemo(() => {
+  const userProfile = useMemo(() => {
     if (!bearerToken) {
-      return '';
+      return null;
     }
 
-    return `${bearerToken.slice(0, 28)}...${bearerToken.slice(-18)}`;
+    return getUserProfile(bearerToken);
   }, [bearerToken]);
+
+  useEffect(() => {
+    function handleLocationChange() {
+      setCurrentPath(window.location.pathname);
+    }
+
+    window.addEventListener('popstate', handleLocationChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (bearerToken && currentPath !== '/home') {
+      navigateTo('/home');
+    }
+
+    if (!bearerToken && currentPath === '/home') {
+      navigateTo('/');
+    }
+  }, [bearerToken, currentPath]);
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError('');
     setTokenResponse(null);
-    setCopyStatus('');
-    localStorage.removeItem('bunte_access_token');
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
     setIsLoading(true);
 
     try {
@@ -48,7 +106,8 @@ function App() {
       }
 
       setTokenResponse(data);
-      localStorage.setItem('bunte_access_token', data.access_token);
+      localStorage.setItem(TOKEN_STORAGE_KEY, data.access_token);
+      navigateTo('/home');
     } catch (loginError) {
       setError('Could not reach the authentication server. Please make sure the backend and Keycloak are running.');
     } finally {
@@ -60,17 +119,46 @@ function App() {
     setPassword('');
     setTokenResponse(null);
     setError('');
-    setCopyStatus('');
-    localStorage.removeItem('bunte_access_token');
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    navigateTo('/');
   }
 
-  async function handleCopyToken() {
-    if (!bearerToken) {
-      return;
-    }
+  if (bearerToken) {
+    return (
+      <div className="App">
+        <main className="home-page">
+          <section className="home-panel" aria-labelledby="home-title">
+            <div className="home-header">
+              <div>
+                <p className="eyebrow">Bunte App</p>
+                <h1 id="home-title">Home Page</h1>
+              </div>
+              <button className="secondary-button" type="button" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
 
-    await navigator.clipboard.writeText(`Bearer ${bearerToken}`);
-    setCopyStatus('Bearer token copied.');
+            <div className="welcome-block">
+              <p className="intro">You are successfully logged in.</p>
+              <dl className="user-details" aria-label="Logged in user details">
+                <div>
+                  <dt>First name</dt>
+                  <dd>{userProfile?.firstName || 'Not available'}</dd>
+                </div>
+                <div>
+                  <dt>Last name</dt>
+                  <dd>{userProfile?.lastName || 'Not available'}</dd>
+                </div>
+                <div>
+                  <dt>User name</dt>
+                  <dd>{userProfile?.username || 'Not available'}</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -114,24 +202,6 @@ function App() {
               {isLoading ? 'Signing in...' : 'Login with Keycloak'}
             </button>
           </form>
-
-          {bearerToken && (
-            <section className="token-panel" aria-label="Bearer token">
-              <div>
-                <p className="token-label">Authenticated</p>
-                <p className="token-value">Bearer {tokenPreview}</p>
-                {copyStatus && <p className="copy-status">{copyStatus}</p>}
-              </div>
-              <div className="token-actions">
-                <button className="secondary-button" type="button" onClick={handleCopyToken}>
-                  Copy token
-                </button>
-                <button className="secondary-button" type="button" onClick={handleLogout}>
-                  Clear token
-                </button>
-              </div>
-            </section>
-          )}
         </section>
       </main>
     </div>
