@@ -26,7 +26,7 @@
 }
 
 .home-panel {
-  max-width: 720px;
+  max-width: 860px;
 }
 
 .brand-block {
@@ -131,6 +131,49 @@ h1 {
   padding: 24px;
 }
 
+.dashboard-menu {
+  margin-top: 28px;
+}
+
+.section-heading {
+  margin-bottom: 16px;
+}
+
+.section-heading h2 {
+  font-size: 1.35rem;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-tile {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d8e0e8;
+  border-left: 4px solid #ed8e35;
+  border-radius: 8px;
+  color: #1f2933;
+  display: flex;
+  font-weight: 700;
+  min-height: 64px;
+  overflow-wrap: anywhere;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.menu-status {
+  color: #52616f;
+  margin: 0;
+}
+
 .user-details {
   display: grid;
   gap: 14px;
@@ -180,6 +223,10 @@ h1 {
   }
 
   .user-details {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -50,6 +50,9 @@ function App() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [dashboardItems, setDashboardItems] = useState([]);
+  const [dashboardError, setDashboardError] = useState('');
+  const [isDashboardLoading, setIsDashboardLoading] = useState(false);
 
   const bearerToken = tokenResponse?.access_token || '';
   const userProfile = useMemo(() => {
@@ -81,6 +84,55 @@ function App() {
       navigateTo('/');
     }
   }, [bearerToken, currentPath]);
+
+  useEffect(() => {
+    if (!bearerToken) {
+      setDashboardItems([]);
+      setDashboardError('');
+      setIsDashboardLoading(false);
+      return;
+    }
+
+    let isActive = true;
+
+    async function fetchDashboardItems() {
+      setDashboardError('');
+      setIsDashboardLoading(true);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/dashboard`, {
+          headers: {
+            Authorization: `Bearer ${bearerToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Dashboard request failed.');
+        }
+
+        const data = await response.json();
+
+        if (isActive) {
+          setDashboardItems(data);
+        }
+      } catch (dashboardFetchError) {
+        if (isActive) {
+          setDashboardItems([]);
+          setDashboardError('Could not load dashboard menu items.');
+        }
+      } finally {
+        if (isActive) {
+          setIsDashboardLoading(false);
+        }
+      }
+    }
+
+    fetchDashboardItems();
+
+    return () => {
+      isActive = false;
+    };
+  }, [bearerToken]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -155,6 +207,26 @@ function App() {
                 </div>
               </dl>
             </div>
+
+            <section className="dashboard-menu" aria-labelledby="dashboard-menu-title">
+              <div className="section-heading">
+                <p className="eyebrow">Dashboard</p>
+                <h2 id="dashboard-menu-title">Menu</h2>
+              </div>
+
+              {isDashboardLoading && <p className="menu-status">Loading dashboard items...</p>}
+              {dashboardError && <p className="message error">{dashboardError}</p>}
+
+              {!isDashboardLoading && !dashboardError && (
+                <ul className="dashboard-grid" aria-label="Dashboard menu items">
+                  {dashboardItems.map((item) => (
+                    <li key={item.name} className="dashboard-tile">
+                      {item.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </section>
         </main>
       </div>

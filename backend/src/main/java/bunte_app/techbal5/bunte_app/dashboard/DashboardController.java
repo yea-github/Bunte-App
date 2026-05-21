@@ -8,14 +8,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DashboardController {
 
+    private final DashboardMenuItemRepository repository;
+
+    public DashboardController(DashboardMenuItemRepository repository) {
+        this.repository = repository;
+    }
+
     @GetMapping("/dashboard")
     public List<MenuItem> dashboard() {
-        return List.of(
-                new MenuItem("CRM"),
-                new MenuItem("Sales"),
-                new MenuItem("Purchases"),
-                new MenuItem("Inventory"),
-                new MenuItem("Accounting"),
-                new MenuItem("Reports"));
+        return repository.findAllByOrderByMenuOrderAsc()
+                .stream()
+                .map(menuItem -> new MenuItem(menuItem.getName()))
+                .toList();
     }
 }
